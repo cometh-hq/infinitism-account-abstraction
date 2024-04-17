@@ -100,6 +100,10 @@ const config: HardhatUserConfig = {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: getAccounts(),
     },
+    arbitrum_sepolia: {
+      url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
   },
 
   namedAccounts: {
@@ -114,6 +118,70 @@ const config: HardhatUserConfig = {
 
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+    customChains: [
+      {
+        network: "chiado",
+        chainId: 10200,
+        urls: {
+          apiURL: "https://gnosis-chiado.blockscout.com/api",
+          browserURL: "https://gnosis-chiado.blockscout.com/",
+        },
+      },
+      {
+        network: "muster_testnet",
+        chainId: 2121337,
+        urls: {
+          apiURL: "https://muster-anytrust-explorer.alt.technology/api",
+        },
+      },
+      {
+        network: "muster",
+        chainId: 4078,
+        urls: {
+          apiURL: "https://muster-explorer-v2.alt.technology/api",
+        },
+      },
+      {
+        network: "polygon_zkevm_testnet",
+        chainId: 1442,
+        urls: {
+          apiURL: "https://testnet-zkevm.polygonscan.com/api",
+          browserURL: "https://testnet-zkevm.polygonscan.com/",
+        },
+      },
+      {
+        network: "arbitrum_sepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
+      {
+        network: "arbitrum",
+        chainId: 42161,
+        urls: {
+          apiURL: "https://api.arbiscan.io/api",
+          browserURL: "https://arbiscan.io/",
+        },
+      },
+      {
+        network: "base_sepolia",
+        chainId: 84532,
+        urls: {
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org/",
+        },
+      },
+      {
+        network: "base",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org/",
+        },
+      },
+    ],
   },
 };
 
