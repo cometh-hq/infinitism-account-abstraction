@@ -8,6 +8,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "hardhat-deploy-ethers";
 
 import "solidity-coverage";
+import { getDeterministicDeployment } from "@cometh/contracts-factory";
 
 import * as fs from "fs";
 dotenv.config();
@@ -69,38 +70,27 @@ const config: HardhatUserConfig = {
       "contracts/core/EntryPoint.sol": optimizedComilerSettings,
       "contracts/samples/SimpleAccount.sol": optimizedComilerSettings,
     },
+    deterministicDeployment: (network: string) => {
+      const networkName = process.env.HARDHAT_NETWORK ?? "";
+      const env: string = (() => {
+        switch (true) {
+          case networkName.endsWith("_production"):
+            return "production";
+          case networkName.endsWith("_staging"):
+            return "staging";
+          default:
+            return "develop";
+        }
+      })();
+      return getDeterministicDeployment(env)(network);
+    },
   },
   networks: {
-    dev: { url: "http://localhost:8545" },
-    // github action starts localgeth service, for gas calculations
-    localgeth: { url: "http://localgeth:8545" },
-    proxy: getNetwork1("http://localhost:8545"),
-    kovan: getNetwork("kovan"),
-    mumbai: {
-      url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_ID}`,
-      accounts: getAccounts(),
-    },
-    polygon: {
+    polygon_develop: {
       url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: getAccounts(),
     },
-    avalanche: {
-      url: `https://avalanche-mainnet.infura.io/v3/${process.env.INFURA_ID}`,
-      accounts: getAccounts(),
-    },
-    fuji: {
-      url: `https://avalanche-fuji.infura.io/v3/${process.env.INFURA_ID}`,
-      accounts: getAccounts(),
-    },
-    goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_ID}`,
-      accounts: getAccounts(),
-    },
-    mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
-      accounts: getAccounts(),
-    },
-    arbitrum_sepolia: {
+    arbitrum_sepolia_develop: {
       url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
