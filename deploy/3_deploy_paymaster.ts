@@ -34,12 +34,12 @@ const deployPaymaster: DeployFunction = async function (
   });
   console.log("==paymaster addr=", paymaster.address);
 
-  /*const paymasterContract = (
+  const paymasterContract = (
     await hre.ethers.getContractAt("VerifyingPaymaster", paymaster.address)
   ).connect(signer);
   const tx = await paymasterContract.deposit({ value: PAYMASTER_DEPOSIT });
   await tx.wait();
-  console.log("Paymaster deposited");*/
+  console.log("Paymaster deposited");
 
   await run("verify:verify", {
     address: paymaster.address,
