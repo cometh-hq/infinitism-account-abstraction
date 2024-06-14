@@ -60,7 +60,7 @@ abstract contract BasePaymaster is IPaymaster, Ownable {
     /**
      * add a deposit for this paymaster, used for paying for transaction fees
      */
-    function deposit() public payable {
+    function deposit() public payable virtual {
         entryPoint.depositTo{value : msg.value}(address(this));
     }
 
@@ -69,7 +69,7 @@ abstract contract BasePaymaster is IPaymaster, Ownable {
      * @param withdrawAddress target to send to
      * @param amount to withdraw
      */
-    function withdrawTo(address payable withdrawAddress, uint256 amount) public onlyOwner {
+    function withdrawTo(address payable withdrawAddress, uint256 amount) public virtual onlyOwner {
         entryPoint.withdrawTo(withdrawAddress, amount);
     }
     /**
