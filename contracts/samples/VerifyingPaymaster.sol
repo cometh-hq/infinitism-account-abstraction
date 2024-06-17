@@ -203,14 +203,11 @@ function _postOp(
         //ECDSA library supports both 64 and 65-byte long signatures.
         // we only "require" it here so that the revert reason on invalid signature will be of "VerifyingPaymaster", and not "ECDSA"
         require(signature.length == 64 || signature.length == 65, "VerifyingPaymaster: invalid signature length in paymasterAndData");
-        bytes32 hash = getHash(userOp, paymasterId, validUntil, validAfter);
+        bytes32 hash = ECDSA.toEthSignedMessageHash(getHash(userOp, paymasterId, validUntil, validAfter));
         senderNonce[userOp.getSender()]++;
 
         //don't revert on signature failure: return SIG_VALIDATION_FAILED
-        if (
-            verifyingSigner !=
-            hash.toEthSignedMessageHash().recover(signature)
-        ) {
+        if (verifyingSigner != ECDSA.recover(hash, signature)) {
             return ("",_packValidationData(true,validUntil,validAfter));
         }
 
