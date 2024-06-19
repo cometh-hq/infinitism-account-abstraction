@@ -94,6 +94,10 @@ const config: HardhatUserConfig = {
       url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    sepolia: {
+      url: "https://sepolia.infura.io/v3/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
   },
 
   namedAccounts: {
@@ -110,18 +114,19 @@ const config: HardhatUserConfig = {
     apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
       {
+        network: "sepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://api-sepolia.etherscan.io",
+        },
+      },
+      {
         network: "chiado",
         chainId: 10200,
         urls: {
           apiURL: "https://gnosis-chiado.blockscout.com/api",
           browserURL: "https://gnosis-chiado.blockscout.com/",
-        },
-      },
-      {
-        network: "muster_testnet",
-        chainId: 2121337,
-        urls: {
-          apiURL: "https://muster-anytrust-explorer.alt.technology/api",
         },
       },
       {
