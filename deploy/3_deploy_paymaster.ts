@@ -37,8 +37,8 @@ const deployPaymaster: DeployFunction = async function (
   const paymasterContract = (
     await hre.ethers.getContractAt("VerifyingPaymaster", paymaster.address)
   ).connect(signer);
-  const tx = await paymasterContract.deposit({ value: PAYMASTER_DEPOSIT });
-  await tx.wait();
+  // const tx = await paymasterContract.deposit({ value: PAYMASTER_DEPOSIT });
+  //await tx.wait();
   console.log("Paymaster deposited");
 
   await run("verify:verify", {

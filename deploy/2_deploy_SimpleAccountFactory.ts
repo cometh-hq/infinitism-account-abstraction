@@ -1,9 +1,11 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DeployFunction } from 'hardhat-deploy/types'
-import { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+import { ethers } from "hardhat";
 
-const deploySimpleAccountFactory: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const provider = ethers.provider
+const deploySimpleAccountFactory: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
+  /* const provider = ethers.provider
   const from = await provider.getSigner().getAddress()
   const network = await provider.getNetwork()
   // only deploy on local test network.
@@ -28,7 +30,7 @@ const deploySimpleAccountFactory: DeployFunction = async function (hre: HardhatR
     from,
     deterministicDeployment: true,
     log: true
-  })
-}
+  })*/
+};
 
-export default deploySimpleAccountFactory
+export default deploySimpleAccountFactory;

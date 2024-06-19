@@ -1,9 +1,11 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DeployFunction } from 'hardhat-deploy/types'
-import { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+import { ethers } from "hardhat";
 
-const deployEntryPoint: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const provider = ethers.provider
+const deployEntryPoint: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
+  /* const provider = ethers.provider
   const from = await provider.getSigner().getAddress()
 
   const ret = await hre.deployments.deploy(
@@ -14,7 +16,7 @@ const deployEntryPoint: DeployFunction = async function (hre: HardhatRuntimeEnvi
       deterministicDeployment: process.env.SALT ?? true,
       log: true
     })
-  console.log('==entrypoint addr=', ret.address)
-}
+  console.log('==entrypoint addr=', ret.address)*/
+};
 
-export default deployEntryPoint
+export default deployEntryPoint;
