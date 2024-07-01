@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import { ethers } from "hardhat";
-import { fillAndSign, fillSignAndPack, packUserOp, simulateValidation } from "../test/UserOp";
+import { fillAndSign, fillSignAndPack, packUserOp, simulateValidation } from "../test/SafeUserOp";
 import { arrayify, defaultAbiCoder, hexConcat } from "ethers/lib/utils";
 import { EntryPoint__factory } from "../typechain";
 import { parseValidationData } from "../test/testutils";
@@ -13,9 +13,8 @@ async function main(): Promise<void> {
 
   const ethersSigner = ethers.provider.getSigner();
   const entryPointAddress = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
-  //const accountAddress = "0x56ccbcF43d4DE1602498aBD869d17c4cf11896dB";
+  const accountAddress = "0x56ccbcF43d4DE1602498aBD869d17c4cf11896dB";
 
-  const accountAddress = "0x328E5544b6267cEF03675d0b77D80a00904795Dc"
 
   const PaymasterFactory = await ethers.getContractFactory(
     "VerifyingPaymaster"
@@ -44,18 +43,24 @@ async function main(): Promise<void> {
         ),
         "0x" + "00".repeat(65),
       ]),
-  /*     nonce:"0x01",
-      verificationGasLimit : "0x17305",
+      nonce:"0x01",
+      verificationGasLimit : 100000000,
       paymasterPostOpGasLimit : 10000,
-      paymasterVerificationGasLimit:100000000 */
+      paymasterVerificationGasLimit:100000000
     },
     owner,
     entryPoint
   );
 
 
+  userOp1.signature = "0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+
+  console.log({userOp1})
+
+
   const hash = await paymaster.getHash(packUserOp(userOp1), VALID_UNTIL, VALID_AFTER);
-  console.log({hash});
+  //console.log({hash});
 
   const sig = await paymasterSigner.signMessage(arrayify(hash));
   const userOp = await fillSignAndPack(
@@ -74,11 +79,11 @@ async function main(): Promise<void> {
     entryPoint
   );
 
-  console.log("USER OP", userOp);
+  //console.log("USER OP", userOp);
 
   const res = await simulateValidation(userOp, entryPoint.address)
 
-  console.log(res);
+  //console.log(res);
   const validationData = parseValidationData(res.returnInfo.paymasterValidationData)
 
   //console.log(validationData)
