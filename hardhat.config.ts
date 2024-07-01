@@ -1,27 +1,26 @@
+import * as dotenv from "dotenv";
+
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
 import "hardhat-deploy";
 import "@nomiclabs/hardhat-etherscan";
-import { getDeterministicDeployment } from "@cometh/contracts-factory";
+import "hardhat-deploy-ethers";
 
 import "solidity-coverage";
+import { getDeterministicDeployment } from "@cometh/contracts-factory";
 
 import * as fs from "fs";
+dotenv.config();
 
-const SALT =
-  "0x90d8084deab30c2a37c45e8d47f49f2f7965183cb6990a98943ef94940681de3";
-process.env.SALT = process.env.SALT ?? SALT;
-
-task("deploy", "Deploy contracts").addFlag(
-  "simpleAccountFactory",
-  "deploy sample factory (by default, enabled only on localhost)"
-);
-
-const mnemonicFileName = process.env.MNEMONIC_FILE!;
+const mnemonicFileName =
+  process.env.MNEMONIC_FILE ??
+  `${process.env.HOME}/.secret/testnet-mnemonic.txt`;
 let mnemonic = "test ".repeat(11) + "junk";
 if (fs.existsSync(mnemonicFileName)) {
   mnemonic = fs.readFileSync(mnemonicFileName, "ascii");
+} else {
+  mnemonic = "test test test test test test test test test test test junk";
 }
 
 function getNetwork1(url: string): {
@@ -34,20 +33,20 @@ function getNetwork1(url: string): {
   };
 }
 
-function getNetwork(name: string): {
+/* function getNetwork(name: string): {
   url: string;
   accounts: { mnemonic: string };
 } {
   return getNetwork1(`https://${name}.infura.io/v3/${process.env.INFURA_ID}`);
   // return getNetwork1(`wss://${name}.infura.io/ws/v3/${process.env.INFURA_ID}`)
-}
+} */
 
 function getAccounts(): string[] | { mnemonic: string } {
   return [process.env.PRIVATE_KEY];
 }
 
 const optimizedComilerSettings = {
-  version: "0.8.23",
+  version: "0.8.24",
   settings: {
     optimizer: { enabled: true, runs: 1000000 },
     viaIR: true,
@@ -61,7 +60,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.23",
+        version: "0.8.24",
         settings: {
           optimizer: { enabled: true, runs: 1000000 },
         },
@@ -87,18 +86,18 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    polygon_develop: {
+ /*    polygon_develop: {
       url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: getAccounts(),
-    },
+    }, */
     arbitrum_sepolia_develop: {
-      url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
+      url: "https://arb-sepolia.g.alchemy.com/v2/IeA95a4zRQKSj-nNx640K1TxCvWjN784",
       accounts: getAccounts(),
     },
-    sepolia: {
+  /*   sepolia: {
       url: "https://sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
-    },
+    }, */
   },
 
   namedAccounts: {
@@ -111,7 +110,7 @@ const config: HardhatUserConfig = {
     timeout: 10000,
   },
 
-  etherscan: {
+  /* etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
       {
@@ -178,7 +177,7 @@ const config: HardhatUserConfig = {
         },
       },
     ],
-  },
+  } */
 };
 
 // coverage chokes on the "compilers" settings

@@ -3,7 +3,8 @@ import { ethers } from "hardhat";
 import { fillAndSign, fillSignAndPack, packUserOp, simulateValidation } from "../test/UserOp";
 import { arrayify, defaultAbiCoder, hexConcat } from "ethers/lib/utils";
 import { EntryPoint__factory } from "../typechain";
-import { parseValidationData } from "./testutils";
+import { parseValidationData } from "../test/testutils";
+
 /* import { simulationResultCatch } from "../test/testutils";
  */
 async function main(): Promise<void> {
@@ -13,7 +14,7 @@ async function main(): Promise<void> {
   const ethersSigner = ethers.provider.getSigner();
   const entryPointAddress = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
 
-  const accountAddress = "0x8050dd2c27E71c0Fe6B76ba136e8C7435eDADDE9";
+  const accountAddress = "0x56ccbcF43d4DE1602498aBD869d17c4cf11896dB";
 
   const PaymasterFactory = await ethers.getContractFactory(
     "VerifyingPaymaster"
@@ -42,13 +43,18 @@ async function main(): Promise<void> {
         ),
         "0x" + "00".repeat(65),
       ]),
+      nonce:"0x01",
+      verificationGasLimit : "0x17305",
+      paymasterPostOpGasLimit : 10000,
+      paymasterVerificationGasLimit:100000000
     },
     owner,
     entryPoint
   );
 
+
   const hash = await paymaster.getHash(packUserOp(userOp1), VALID_UNTIL, VALID_AFTER);
-  console.log(hash);
+  console.log({hash});
 
   const sig = await paymasterSigner.signMessage(arrayify(hash));
   const userOp = await fillSignAndPack(
