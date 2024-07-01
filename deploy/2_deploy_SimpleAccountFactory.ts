@@ -7,30 +7,18 @@ const deploySimpleAccountFactory: DeployFunction = async function (
 ) {
   const provider = ethers.provider;
   const from = await provider.getSigner().getAddress();
-  const network = await provider.getNetwork();
+
+  const entryPointAddress = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
   // only deploy on local test network.
 
-  /*const forceDeployFactory = process.argv.join(' ').match(/simple-account-factory/) != null
-
-  if (!forceDeployFactory && network.chainId !== 31337 && network.chainId !== 1337) {
-    return
-  }
-
-  const entrypoint = await hre.deployments.get('EntryPoint')
-  await hre.deployments.deploy(
-    'SimpleAccountFactory', {
-      from,
-      args: [entrypoint.address],
-      gasLimit: 6e6,
-      log: true,
-      deterministicDeployment: true
-    })*/
-
-  await hre.deployments.deploy("TestCounter", {
+  const ret = await hre.deployments.deploy("SimpleAccountFactory", {
     from,
-    deterministicDeployment: true,
+    args: [entryPointAddress],
+    gasLimit: 6e6,
     log: true,
+    deterministicDeployment: true,
   });
+  console.log("==SimpleAccountFactory addr=", ret.address);
 };
 
 export default deploySimpleAccountFactory;
