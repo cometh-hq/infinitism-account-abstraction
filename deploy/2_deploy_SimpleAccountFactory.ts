@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 const deploySimpleAccountFactory: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  const provider = ethers.provider;
+  /* const provider = ethers.provider;
   const from = await provider.getSigner().getAddress();
 
   const entryPointAddress = "0x0000000071727De22E5E9d8BAf0edAc6f37da032";
@@ -18,7 +18,7 @@ const deploySimpleAccountFactory: DeployFunction = async function (
     log: true,
     deterministicDeployment: true,
   });
-  console.log("==SimpleAccountFactory addr=", ret.address);
+  console.log("==SimpleAccountFactory addr=", ret.address);*/
 };
 
 export default deploySimpleAccountFactory;
