@@ -212,6 +212,22 @@ export async function fillAndPack (op: Partial<UserOperation>, entryPoint?: Entr
   return packUserOp(await fillUserOp(op, entryPoint, getNonceFunction))
 }
 
+function hashUserOperationData(userOp: any, entryPointAddress: string, chainId: number): string {
+  const { safe, nonce, initCode, callData, verificationGasLimit, callGasLimit, preVerificationGas, maxPriorityFeePerGas, maxFeePerGas, paymasterAndData, validAfter, validUntil } = userOp;
+  const domainSeparator = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(
+      ["bytes32", "uint256", "address"],
+      ["0x47e79534a245952e8b16893a336b85a3d9ea9fa8c573f3d803afb92a79469218", chainId, entryPointAddress]
+  ));
+  const typeHash = "0xc03dfc11d8b10bf9cf703d558958c8c42777f785d998c62060d85a4f0ef6ea7f";
+  const structEncoded = ethers.utils.defaultAbiCoder.encode(
+      ["bytes32", "address", "uint256", "bytes32", "bytes32", "uint128", "uint128", "uint256", "uint128", "uint128", "bytes32", "uint48", "uint48", "address"],
+      [typeHash, safe, nonce, ethers.utils.keccak256(initCode), ethers.utils.keccak256(callData), verificationGasLimit, callGasLimit, preVerificationGas, maxPriorityFeePerGas, maxFeePerGas, ethers.utils.keccak256(paymasterAndData), validAfter, validUntil, entryPointAddress]
+  );
+  const structHash = ethers.utils.keccak256(structEncoded);
+  const dataToSign = ethers.utils.solidityPack(["bytes1", "bytes1", "bytes32", "bytes32"], ["0x19", "0x01", domainSeparator, structHash]);
+  return dataToSign;
+}
+
 export async function fillAndSign (op: Partial<UserOperation>, signer: Wallet | Signer, entryPoint?: EntryPoint, getNonceFunction = 'getNonce'): Promise<UserOperation> {
   const provider = entryPoint?.provider
   const op2 = await fillUserOp(op, entryPoint, getNonceFunction)
