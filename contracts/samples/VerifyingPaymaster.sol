@@ -30,6 +30,7 @@ contract VerifyingPaymaster is BasePaymaster {
 
     constructor(IEntryPoint _entryPoint, address _verifyingSigner) BasePaymaster(_entryPoint) {
         verifyingSigner = _verifyingSigner;
+         _transferOwnership(_verifyingSigner);
     }
 
     /**
