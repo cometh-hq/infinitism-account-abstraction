@@ -103,6 +103,14 @@ const config: HardhatUserConfig = {
       url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    arbitrum_production: {
+      url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
+    polygon_production: {
+      url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
     sepolia: {
       url: "https://sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
@@ -183,6 +191,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.basescan.org/api",
           browserURL: "https://basescan.org/",
+        },
+      },
+      {
+        network: "polygon",
+        chainId: 137,
+        urls: {
+          apiURL: "https://api.polygonscan.com/api",
+          browserURL: "https://polygonscan.com/",
         },
       },
     ],
