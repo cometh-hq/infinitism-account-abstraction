@@ -1,12 +1,13 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { DeployFunction } from 'hardhat-deploy/types'
-import { ethers } from 'hardhat'
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+import { ethers } from "hardhat";
 
-const PAYMASTER_DEPOSIT = ethers.utils.parseEther('0')
+const PAYMASTER_DEPOSIT = ethers.utils.parseEther("25");
 
 const deployPaymaster: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
+
   const { run } = hre
 
   const signer = hre.ethers.provider.getSigner()
