@@ -56,7 +56,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
 
     constructor(IEntryPoint _entryPoint, address _verifyingSigner) BasePaymaster(_entryPoint) {
         verifyingSigner = _verifyingSigner;
-        unaccountedEPGasOverhead = 12000;
+        unaccountedEPGasOverhead = 16000;
     }
 
     /**
