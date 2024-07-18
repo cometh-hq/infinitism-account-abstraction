@@ -17,10 +17,12 @@ import { DefaultsForUserOp, fillAndSign, fillSignAndPack, packUserOp, simulateVa
 import { arrayify, defaultAbiCoder, hexConcat, parseEther } from 'ethers/lib/utils'
 import { PackedUserOperation } from './UserOperation'
 
-const MOCK_PAYMASTER_ID = '0x0000000000000001'
 const MOCK_VALID_UNTIL = '0x00000000deadbeef'
 const MOCK_VALID_AFTER = '0x0000000000001234'
 const MOCK_SIG = '0x1234'
+
+const MOCK_PAYMASTER_ID = ethers.utils.keccak256(defaultAbiCoder.encode(['string'], ['user1']))
+const MOCK_OTHER_PAYMASTER_ID = ethers.utils.keccak256(defaultAbiCoder.encode(['string'], ['user2']))
 
 describe('Constructor', () => {
   const ethersSigner = ethers.provider.getSigner()
@@ -55,25 +57,27 @@ describe('VerifyingPaymaster Properties', function () {
   })
 
   describe('#depositFor', () => {
-    it('should revert when paymasterId is zero', async () => {
-      await expect(paymaster.depositFor(0, { value: parseEther('1') })).to.be.revertedWith('Paymaster Id cannot be zero')
+    it('should revert when called by non-owner', async () => {
+      const nonOwner = createAccountOwner()
+      await expect(paymaster.connect(nonOwner).depositFor(MOCK_PAYMASTER_ID, { value: parseEther('1') }))
+        .to.be.revertedWith('OwnableUnauthorizedAccount')
     })
 
     it('should revert when deposit amount is zero', async () => {
-      await expect(paymaster.depositFor(1, { value: 0 })).to.be.revertedWith('Deposit value cannot be zero')
+      await expect(paymaster.depositFor(MOCK_PAYMASTER_ID, { value: 0 })).to.be.revertedWith('Deposit value cannot be zero')
     })
 
     it('should deposit correctly for valid paymasterId and amount', async () => {
-      const initialBalance = await paymaster.getBalance(1)
-      await paymaster.depositFor(1, { value: parseEther('1') })
-      const newBalance = await paymaster.getBalance(1)
+      const initialBalance = await paymaster.getBalance(MOCK_PAYMASTER_ID)
+      await paymaster.depositFor(MOCK_PAYMASTER_ID, { value: parseEther('1') })
+      const newBalance = await paymaster.getBalance(MOCK_PAYMASTER_ID)
       expect(newBalance).to.be.equal(initialBalance.add(parseEther('1')))
     })
 
     it('should emit GasDeposited event on successful deposit', async () => {
-      await expect(paymaster.depositFor(1, { value: parseEther('1') }))
+      await expect(paymaster.depositFor(MOCK_PAYMASTER_ID, { value: parseEther('1') }))
         .to.emit(paymaster, 'GasDeposited')
-        .withArgs(1, parseEther('1'))
+        .withArgs(MOCK_PAYMASTER_ID, parseEther('1'))
     })
   })
 
@@ -94,19 +98,19 @@ describe('VerifyingPaymaster Properties', function () {
   describe('#withdrawTo', () => {
     it('should revert when called by non-owner', async () => {
       const nonOwner = createAccountOwner()
-      await expect(paymaster.connect(nonOwner)['withdrawTo(address,uint256,uint48)'](createAddress(), parseEther('1'), 1))
+      await expect(paymaster.connect(nonOwner)['withdrawTo(address,uint256,bytes32)'](createAddress(), parseEther('1'), MOCK_PAYMASTER_ID))
         .to.be.revertedWith('OwnableUnauthorizedAccount')
     })
 
     it('should revert when withdraw address is zero', async () => {
-      await expect(paymaster['withdrawTo(address,uint256,uint48)'](ethers.constants.AddressZero, parseEther('1'), 1))
+      await expect(paymaster['withdrawTo(address,uint256,bytes32)'](ethers.constants.AddressZero, parseEther('1'), MOCK_PAYMASTER_ID))
         .to.be.revertedWith('Withdraw address cannot be zero')
     })
 
     it('should revert when amount is greater than balance', async () => {
-      const currentBalance = await paymaster.getBalance(1)
+      const currentBalance = await paymaster.getBalance(MOCK_PAYMASTER_ID)
       const withdrawAmount = currentBalance.add(parseEther('1'))
-      await expect(paymaster['withdrawTo(address,uint256,uint48)'](createAddress(), withdrawAmount, 1))
+      await expect(paymaster['withdrawTo(address,uint256,bytes32)'](createAddress(), withdrawAmount, MOCK_PAYMASTER_ID))
         .to.be.revertedWith(`Insufficient balance in paymasterId, required: ${withdrawAmount}, available: ${currentBalance}`)
     })
 
@@ -115,9 +119,9 @@ describe('VerifyingPaymaster Properties', function () {
       const initialBalance = await ethers.provider.getBalance(withdrawAddress)
       const withdrawAmount = parseEther('1')
 
-      await paymaster.depositFor(1, { value: withdrawAmount })
+      await paymaster.depositFor(MOCK_PAYMASTER_ID, { value: withdrawAmount })
 
-      await paymaster['withdrawTo(address,uint256,uint48)'](withdrawAddress, withdrawAmount, 1)
+      await paymaster['withdrawTo(address,uint256,bytes32)'](withdrawAddress, withdrawAmount, MOCK_PAYMASTER_ID)
 
       const newBalance = await ethers.provider.getBalance(withdrawAddress)
       expect(newBalance).to.be.equal(initialBalance.add(withdrawAmount))
@@ -127,11 +131,11 @@ describe('VerifyingPaymaster Properties', function () {
       const withdrawAddress = createAddress()
       const withdrawAmount = parseEther('1')
 
-      await paymaster.depositFor(1, { value: withdrawAmount })
+      await paymaster.depositFor(MOCK_PAYMASTER_ID, { value: withdrawAmount })
 
-      await expect(paymaster['withdrawTo(address,uint256,uint48)'](withdrawAddress, withdrawAmount, 1))
+      await expect(paymaster['withdrawTo(address,uint256,bytes32)'](withdrawAddress, withdrawAmount, MOCK_PAYMASTER_ID))
         .to.emit(paymaster, 'GasWithdrawn')
-        .withArgs(1, withdrawAddress, withdrawAmount)
+        .withArgs(MOCK_PAYMASTER_ID, withdrawAddress, withdrawAmount)
     })
   })
 })
@@ -164,7 +168,7 @@ describe('EntryPoint with VerifyingPaymaster', function () {
         DefaultsForUserOp.paymasterVerificationGasLimit,
         DefaultsForUserOp.paymasterPostOpGasLimit,
         hexConcat([
-          defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), MOCK_SIG
+          defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), MOCK_SIG
         ])
       )
       console.log(paymasterAndData)
@@ -173,7 +177,7 @@ describe('EntryPoint with VerifyingPaymaster', function () {
       // console.log('validUntil after', res.validUntil, res.validAfter)
       // console.log('MOCK SIG', MOCK_SIG)
       // console.log('sig', res.signature)
-      expect(res.paymasterId).to.be.equal(ethers.BigNumber.from(MOCK_PAYMASTER_ID))
+      expect(res.paymasterId).to.be.equal(MOCK_PAYMASTER_ID)
       expect(res.validUntil).to.be.equal(ethers.BigNumber.from(MOCK_VALID_UNTIL))
       expect(res.validAfter).to.be.equal(ethers.BigNumber.from(MOCK_VALID_AFTER))
       expect(res.signature).equal(MOCK_SIG)
@@ -186,7 +190,7 @@ describe('EntryPoint with VerifyingPaymaster', function () {
         sender: account.address,
         paymaster: paymaster.address,
         paymasterPostOpGasLimit: 20000,
-        paymasterData: hexConcat([defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x1234'])
+        paymasterData: hexConcat([defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x1234'])
       }, accountOwner, entryPoint)
       expect(await simulateValidation(userOp, entryPoint.address)
         .catch(e => decodeRevertReason(e)))
@@ -199,7 +203,7 @@ describe('EntryPoint with VerifyingPaymaster', function () {
         paymaster: paymaster.address,
         paymasterPostOpGasLimit: 20000,
         paymasterData: hexConcat(
-          [defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
+          [defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
       }, accountOwner, entryPoint)
       expect(await simulateValidation(userOp, entryPoint.address)
         .catch(e => decodeRevertReason(e)))
@@ -215,7 +219,7 @@ describe('EntryPoint with VerifyingPaymaster', function () {
           sender: account.address,
           paymaster: paymaster.address,
           paymasterPostOpGasLimit: 20000,
-          paymasterData: hexConcat([defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
+          paymasterData: hexConcat([defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
         }, accountOwner, entryPoint)
       })
 
@@ -231,20 +235,20 @@ describe('EntryPoint with VerifyingPaymaster', function () {
 
     it('succeed with valid signature', async () => {
       // Add sufficient deposit to ensure required pre-fund condition is met
-      await paymaster.depositFor(1, { value: parseEther('1') })
+      await paymaster.depositFor(MOCK_PAYMASTER_ID, { value: parseEther('1') })
       const userOp1 = await fillAndSign({
         sender: account.address,
         paymaster: paymaster.address,
         paymasterPostOpGasLimit: 20000,
         paymasterData: hexConcat(
-          [defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
+          [defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
       }, accountOwner, entryPoint)
       const hash = await paymaster.getHash(packUserOp(userOp1), MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER)
       const sig = await offchainSigner.signMessage(arrayify(hash))
       const userOp = await fillSignAndPack({
         ...userOp1,
         paymaster: paymaster.address,
-        paymasterData: hexConcat([defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
+        paymasterData: hexConcat([defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
       }, accountOwner, entryPoint)
       const res = await simulateValidation(userOp, entryPoint.address)
       const validationData = parseValidationData(res.returnInfo.paymasterValidationData)
@@ -262,14 +266,14 @@ describe('EntryPoint with VerifyingPaymaster', function () {
         paymaster: paymaster.address,
         paymasterPostOpGasLimit: 10000,
         paymasterData: hexConcat(
-          [defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], ['0x0000000000000002', MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
+          [defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_OTHER_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
       }, accountOwner, entryPoint)
-      const hash = await paymaster.getHash(packUserOp(userOp1), '0x0000000000000002', MOCK_VALID_UNTIL, MOCK_VALID_AFTER)
+      const hash = await paymaster.getHash(packUserOp(userOp1), MOCK_OTHER_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER)
       const sig = await offchainSigner.signMessage(arrayify(hash))
       const userOp = await fillAndSign({
         ...userOp1,
         paymaster: paymaster.address,
-        paymasterData: hexConcat([defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], ['0x0000000000000002', MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
+        paymasterData: hexConcat([defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_OTHER_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
       }, accountOwner, entryPoint)
       expect(await simulateValidation(packUserOp(userOp), entryPoint.address)
         .catch(e => decodeRevertReason(e)))
@@ -283,14 +287,14 @@ describe('EntryPoint with VerifyingPaymaster', function () {
         paymaster: paymaster.address,
         paymasterPostOpGasLimit: 20000,
         paymasterData: hexConcat(
-          [defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], ['0x0000000000000002', MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
+          [defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_OTHER_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), '0x' + '00'.repeat(65)])
       }, accountOwner, entryPoint)
-      const hash = await paymaster.getHash(packUserOp(userOp1), '0x0000000000000002', MOCK_VALID_UNTIL, MOCK_VALID_AFTER)
+      const hash = await paymaster.getHash(packUserOp(userOp1), MOCK_OTHER_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER)
       const sig = await offchainSigner.signMessage(arrayify(hash))
       const userOp = await fillAndSign({
         ...userOp1,
         paymaster: paymaster.address,
-        paymasterData: hexConcat([defaultAbiCoder.encode(['uint48', 'uint48', 'uint48'], ['0x0000000000000002', MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
+        paymasterData: hexConcat([defaultAbiCoder.encode(['bytes32', 'uint48', 'uint48'], [MOCK_OTHER_PAYMASTER_ID, MOCK_VALID_UNTIL, MOCK_VALID_AFTER]), sig])
       }, accountOwner, entryPoint)
       expect(await simulateValidation(packUserOp(userOp), entryPoint.address)
         .catch(e => decodeRevertReason(e)))

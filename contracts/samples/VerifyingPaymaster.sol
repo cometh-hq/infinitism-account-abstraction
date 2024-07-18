@@ -36,21 +36,21 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
 
     uint256 private unaccountedEPGasOverhead;
     
-    mapping(uint48 => uint256) public paymasterIdBalances;
+    mapping(bytes32 => uint256) public paymasterIdBalances;
 
     event EPGasOverheadChanged(
         uint256 indexed _oldValue,
         uint256 indexed _newValue
     );
 
-    event GasDeposited(uint48 indexed _paymasterId, uint256 indexed _value);
+    event GasDeposited(bytes32 indexed _paymasterId, uint256 indexed _value);
     event GasWithdrawn(
-        uint48 indexed _paymasterId,
+        bytes32 indexed _paymasterId,
         address indexed _to,
         uint256 indexed _value
     );
     event GasBalanceDeducted(
-        uint48 indexed _paymasterId,
+        bytes32 indexed _paymasterId,
         uint256 indexed _charge
     );
 
@@ -63,8 +63,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
      * @dev Add a deposit for this paymaster and given paymasterId (Dapp Depositor ID), used for paying for transaction fees
      * @param paymasterId dapp identifier for which deposit is being made
      */
-    function depositFor(uint48 paymasterId) external payable nonReentrant { 
-        if (paymasterId == 0) revert("Paymaster Id cannot be zero");
+    function depositFor(bytes32 paymasterId) external payable onlyOwner nonReentrant {
         if (msg.value == 0) revert("Deposit value cannot be zero");
         paymasterIdBalances[paymasterId] = paymasterIdBalances[paymasterId] + msg.value;
         entryPoint.depositTo{value: msg.value}(address(this));
@@ -82,7 +81,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
      * @param paymasterId dapp identifier
      */
     function getBalance(
-        uint48 paymasterId
+        bytes32 paymasterId
     ) external view returns (uint256 balance) {
         balance = paymasterIdBalances[paymasterId];
     }
@@ -105,7 +104,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
     function withdrawTo(
         address payable withdrawAddress,
         uint256 amount,
-        uint48 paymasterId
+        bytes32 paymasterId
     ) public onlyOwner nonReentrant {
         if (withdrawAddress == address(0)) revert("Withdraw address cannot be zero");
         uint256 currentBalance = paymasterIdBalances[paymasterId];
@@ -137,7 +136,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
      * note that this signature covers all fields of the UserOperation, except the "paymasterAndData",
      * which will carry the signature itself.
      */
-    function getHash(PackedUserOperation calldata userOp, uint48 paymasterId, uint48 validUntil, uint48 validAfter)
+    function getHash(PackedUserOperation calldata userOp, bytes32 paymasterId, uint48 validUntil, uint48 validAfter)
     public view returns (bytes32) {
         //can't use userOp.hash(), since it contains also the paymasterAndData itself.
         address sender = userOp.getSender();
@@ -173,7 +172,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
         uint256 actualGasCost,
         uint256 actualUserOpFeePerGas
     ) internal override {
-        (uint48 paymasterId) = abi.decode(context, (uint48));
+        (bytes32 paymasterId) = abi.decode(context, (bytes32));
         uint256 balToDeduct = actualGasCost + (unaccountedEPGasOverhead * actualUserOpFeePerGas);
         paymasterIdBalances[paymasterId] -= balToDeduct;
         emit GasBalanceDeducted(paymasterId, balToDeduct);
@@ -190,7 +189,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
     internal view override returns (bytes memory context, uint256 validationData) {
         (requiredPreFund);
 
-        (uint48 paymasterId, uint48 validUntil, uint48 validAfter, bytes calldata signature) = parsePaymasterAndData(userOp.paymasterAndData);
+        (bytes32 paymasterId, uint48 validUntil, uint48 validAfter, bytes calldata signature) = parsePaymasterAndData(userOp.paymasterAndData);
         //ECDSA library supports both 64 and 65-byte long signatures.
         // we only "require" it here so that the revert reason on invalid signature will be of "VerifyingPaymaster", and not "ECDSA"
         require(signature.length == 64 || signature.length == 65, "VerifyingPaymaster: invalid signature length in paymasterAndData");
@@ -224,8 +223,8 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
         );
     }
 
-    function parsePaymasterAndData(bytes calldata paymasterAndData) public pure returns (uint48 paymasterId, uint48 validUntil, uint48 validAfter, bytes calldata signature) {
-        (paymasterId, validUntil, validAfter) = abi.decode(paymasterAndData[VALID_TIMESTAMP_OFFSET :], (uint48, uint48, uint48));
+    function parsePaymasterAndData(bytes calldata paymasterAndData) public pure returns (bytes32 paymasterId, uint48 validUntil, uint48 validAfter, bytes calldata signature) {
+        (paymasterId, validUntil, validAfter) = abi.decode(paymasterAndData[VALID_TIMESTAMP_OFFSET :], (bytes32, uint48, uint48));
         signature = paymasterAndData[SIGNATURE_OFFSET :]; 
     }
 }
