@@ -104,7 +104,7 @@ const config: HardhatUserConfig = {
       accounts: getAccounts(),
     },
     arbitrum_production: {
-      url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
+      url: "https://arbitrum-mainnet.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
     polygon_production: {
