@@ -115,6 +115,10 @@ const config: HardhatUserConfig = {
       url: "https://sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    gnosis_production: {
+      url: "https://gnosis-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
   },
 
   namedAccounts: {
@@ -199,6 +203,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.polygonscan.com/api",
           browserURL: "https://polygonscan.com/",
+        },
+      },
+      {
+        network: "gnosis",
+        chainId: 100,
+        urls: {
+          apiURL: "https://api.gnosisscan.io/api",
+          browserURL: "https://gnosisscan.io/",
         },
       },
     ],

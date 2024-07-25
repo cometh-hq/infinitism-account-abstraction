@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-const PAYMASTER_DEPOSIT = ethers.utils.parseEther("0.2");
+const PAYMASTER_DEPOSIT = ethers.utils.parseEther("2");
 
 const deployPaymaster: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -31,6 +31,7 @@ const deployPaymaster: DeployFunction = async function (
     from,
     args: [entryPointAddress, paymasterOwner],
     deterministicDeployment: true,
+    gasLimit: 5000000,
   });
   console.log("==paymaster addr=", paymaster.address);
 
