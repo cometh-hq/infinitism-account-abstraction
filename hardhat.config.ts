@@ -119,6 +119,10 @@ const config: HardhatUserConfig = {
       url: "https://gnosis-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    bArtio_production: {
+      url: "https://bartio.rpc.berachain.com",
+      accounts: getAccounts(),
+    },
   },
 
   namedAccounts: {
@@ -211,6 +215,15 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.gnosisscan.io/api",
           browserURL: "https://gnosisscan.io/",
+        },
+      },
+      {
+        network: "bartio_testnet",
+        chainId: 80084,
+        urls: {
+          apiURL:
+            "https://api.routescan.io/v2/network/testnet/evm/80084/etherscan",
+          browserURL: "https://bartio.beratrail.io",
         },
       },
     ],
