@@ -99,6 +99,10 @@ const config: HardhatUserConfig = {
       url: "https://base-sepolia.g.alchemy.com/v2/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    base_production: {
+      url: "https://base-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
     arbitrum_sepolia_production: {
       url: "https://arbitrum-sepolia.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
@@ -109,6 +113,10 @@ const config: HardhatUserConfig = {
     },
     polygon_production: {
       url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
+    amoy_production: {
+      url: "https://polygon-amoy.g.alchemy.com/v2/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
     sepolia: {
