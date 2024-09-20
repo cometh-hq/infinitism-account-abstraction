@@ -131,6 +131,11 @@ const config: HardhatUserConfig = {
       url: "https://bartio.rpc.berachain.com",
       accounts: getAccounts(),
     },
+    worldchain_sepolia_production: {
+      url:
+        "https://worldchain-sepolia.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
   },
 
   namedAccounts: {
