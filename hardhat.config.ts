@@ -111,6 +111,14 @@ const config: HardhatUserConfig = {
       url: "https://arbitrum-mainnet.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    optimism_production: {
+      url: "https://opt-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
+    optimism_sepolia_production: {
+      url: "https://opt-sepolia.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
     polygon_production: {
       url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
       accounts: getAccounts(),
@@ -157,6 +165,22 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api-sepolia.etherscan.io/api",
           browserURL: "https://api-sepolia.etherscan.io",
+        },
+      },
+      {
+        network: "optimism sepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
+          browserURL: "https://api-sepolia-optimism.etherscan.io",
+        },
+      },
+      {
+        network: "optimism",
+        chainId: 10,
+        urls: {
+          apiURL: "https://api-optimistic.etherscan.io/api",
+          browserURL: "https://api-optimistic.etherscan.io",
         },
       },
       {

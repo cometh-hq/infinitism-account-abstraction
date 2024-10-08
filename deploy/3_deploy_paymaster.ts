@@ -31,7 +31,6 @@ const deployPaymaster: DeployFunction = async function (
     from,
     args: [entryPointAddress, paymasterOwner],
     deterministicDeployment: true,
-    gasLimit: 5000000,
   });
   console.log("==paymaster addr=", paymaster.address);
 
