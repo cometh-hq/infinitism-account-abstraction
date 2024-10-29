@@ -144,6 +144,17 @@ const config: HardhatUserConfig = {
         "https://worldchain-sepolia.g.alchemy.com/v2/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
+    linea_sepolia_production: {
+      url: "https://linea-sepolia.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+
+    linea_production: {
+      url: "https://linea-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
 
   namedAccounts: {
@@ -261,6 +272,22 @@ const config: HardhatUserConfig = {
           apiURL:
             "https://api.routescan.io/v2/network/testnet/evm/80084/etherscan",
           browserURL: "https://bartio.beratrail.io",
+        },
+      },
+      {
+        network: "linea",
+        chainId: 59144,
+        urls: {
+          apiURL: "https://api.lineascan.build/api",
+          browserURL: "https://lineascan.build/",
+        },
+      },
+      {
+        network: "linea_sepolia",
+        chainId: 59141,
+        urls: {
+          apiURL: "https://api-sepolia.lineascan.build/api",
+          browserURL: "https://sepolia.lineascan.build/",
         },
       },
     ],

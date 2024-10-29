@@ -52,7 +52,7 @@
     "typechain": "^8.1.0"
   },
   "dependencies": {
-    "@cometh/contracts-factory": "1.2.12",
+    "@cometh/contracts-factory": "1.2.13",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
     "@openzeppelin/contracts": "^5.0.0",
     "@thehubbleproject/bls": "^0.5.1",
