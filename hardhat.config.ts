@@ -159,6 +159,17 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+
+    bsc_production: {
+      url: "https://bnb-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    bsc_testnet_production: {
+      url: "https://bnb-testnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
 
   namedAccounts: {
