@@ -10,7 +10,7 @@ import "../core/Helpers.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol"; 
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * A sample paymaster that uses external service to decide whether to pay for the UserOp.
@@ -32,10 +32,10 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
 
     uint256 private constant VALID_TIMESTAMP_OFFSET = PAYMASTER_DATA_OFFSET;
 
-    uint256 private constant SIGNATURE_OFFSET = VALID_TIMESTAMP_OFFSET + 96; 
+    uint256 private constant SIGNATURE_OFFSET = VALID_TIMESTAMP_OFFSET + 96;
 
     uint256 private unaccountedEPGasOverhead;
-    
+
     mapping(bytes32 => uint256) public paymasterIdBalances;
 
     event EPGasOverheadChanged(
@@ -63,7 +63,7 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
      * @dev Add a deposit for this paymaster and given paymasterId (Dapp Depositor ID), used for paying for transaction fees
      * @param paymasterId dapp identifier for which deposit is being made
      */
-    function depositFor(bytes32 paymasterId) external payable onlyOwner nonReentrant {
+    function depositFor(bytes32 paymasterId) external payable nonReentrant {
         if (msg.value == 0) revert("Deposit value cannot be zero");
         paymasterIdBalances[paymasterId] = paymasterIdBalances[paymasterId] + msg.value;
         entryPoint.depositTo{value: msg.value}(address(this));
@@ -225,6 +225,6 @@ contract VerifyingPaymaster is BasePaymaster, ReentrancyGuard {
 
     function parsePaymasterAndData(bytes calldata paymasterAndData) public pure returns (bytes32 paymasterId, uint48 validUntil, uint48 validAfter, bytes calldata signature) {
         (paymasterId, validUntil, validAfter) = abi.decode(paymasterAndData[VALID_TIMESTAMP_OFFSET :], (bytes32, uint48, uint48));
-        signature = paymasterAndData[SIGNATURE_OFFSET :]; 
+        signature = paymasterAndData[SIGNATURE_OFFSET :];
     }
 }
