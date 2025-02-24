@@ -143,9 +143,19 @@ const config: HardhatUserConfig = {
       url: "https://bartio.rpc.berachain.com",
       accounts: getAccounts(),
     },
+    berachain_production: {
+      url:
+        "https://berachain-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
     worldchain_sepolia_production: {
       url:
         "https://worldchain-sepolia.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts: getAccounts(),
+    },
+    worldchain_production: {
+      url:
+        "https://worldchain-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
       accounts: getAccounts(),
     },
     linea_sepolia_production: {
@@ -167,6 +177,21 @@ const config: HardhatUserConfig = {
     },
     bsc_testnet_production: {
       url: "https://bnb-testnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    staging_swisstronik_production: {
+      url: "http://148.113.17.32:8547",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    swisstronik_production: {
+      url: "https://json-rpc.testnet.swisstronik.com/unencrypted/",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    telos_testnet_production: {
+      url: "http://162.19.136.128:8123/ :",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
@@ -289,6 +314,15 @@ const config: HardhatUserConfig = {
           browserURL: "https://bartio.beratrail.io",
         },
       },
+
+      {
+        network: "berachain",
+        chainId: 80094,
+        urls: {
+          apiURL: "https://api.berascan.com/api",
+          browserURL: "https://docs.berascan.org/",
+        },
+      },
       {
         network: "linea",
         chainId: 59144,
@@ -303,6 +337,22 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api-sepolia.lineascan.build/api",
           browserURL: "https://sepolia.lineascan.build/",
+        },
+      },
+      {
+        network: "worldchain",
+        chainId: 480,
+        urls: {
+          apiURL: "https://api.worldscan.org/api",
+          browserURL: "https://worldscan.org",
+        },
+      },
+      {
+        network: "worldchain-sepolia",
+        chainId: 4801,
+        urls: {
+          apiURL: "https://api-sepolia.worldscan.org/api",
+          browserURL: "https://sepolia.worldscan.org",
         },
       },
     ],
