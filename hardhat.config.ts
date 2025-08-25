@@ -195,6 +195,11 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    mainnet_production: {
+      url: "https://eth-mainnet.g.alchemy.com/v2/" + process.env.INFURA_ID,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
 
   namedAccounts: {
